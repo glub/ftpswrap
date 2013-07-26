@@ -1,0 +1,113 @@
+<project name="ftpswrap" default="all">
+
+  <property environment="env"/>
+
+  <property name="SRC" value="src/"/>
+  <property name="BUILD" value="cls/"/>
+  <property name="DIST" value="dist/"/>
+
+  <property name="WRAPPER" value="com/glub/secureftp/wrapper/"/>
+  <property name="COMMON" value="com/glub/secureftp/common/"/>
+  <property name="GLUBNET" value="com/glub/net/"/>
+  <property name="GLUBUTIL" value="com/glub/util/"/>
+  <property name="GLUBJNI" value="com/glub/jni/"/>
+  <property name="SYSLOG" value="com/ice/syslog/"/>
+
+  <path id="project.class.path">
+    <fileset dir="lib/">
+      <include name="**/*.jar"/>
+    </fileset>
+  </path>
+
+  <target name="all" depends="jar_wrapper"/>
+
+  <target name="init">
+     <tstamp/>
+     <mkdir dir="${BUILD}"/>
+     <mkdir dir="${BUILD}/examples"/>
+     <mkdir dir="${DIST}"/>
+  </target>
+
+  <target name="clean">
+    <delete dir="${BUILD}"/>
+  </target>
+
+  <target name="distclean" depends="clean">
+    <delete dir="${DIST}"/>
+  </target>
+
+  <target name="core" depends="init">
+    <javac target="1.4" source="1.4" srcdir="${SRC}/" destdir="${BUILD}/"
+           debug="off"
+           deprecation="on"
+           includes="${GLUBNET}/**,
+                     ${GLUBUTIL}/**,
+                     ${GLUBJNI}/**,
+                     ${COMMON}/**,
+                     ${SYSLOG}/**">
+      <classpath refid="project.class.path"/>
+    </javac>
+
+  </target>
+
+<!--
+           deprecation="on"
+-->
+
+  <target name="wrapper" depends="core">
+    <javac target="1.4" source="1.4" srcdir="${SRC}/" destdir="${BUILD}/"
+           debug="off"
+           deprecation="on"
+           includes="${WRAPPER}/**">
+      <classpath refid="project.class.path"/>
+    </javac>
+  </target>
+
+  <target name="jar_wrapper" depends="wrapper">
+    <jar jarfile="${DIST}/ftpswrap3.jar" basedir="${BUILD}"
+         excludes="**/RCS/**, **/client/**, **/bean/**, **/examples/**" 
+	 manifest="manifest/ftpswrap_manifest.mf"/>
+    <delete dir="${DIST}/temp" verbose="false"/>
+  </target>
+
+  <target name="jni_core" depends="core">
+    <javah destdir="${SRC}/${GLUBJNI}/">
+      <classpath path="${SRC}/"/>
+      <class name="com.glub.jni.UID"/>
+    </javah>
+  </target>
+
+  <target name="jni_linux_x86_64" depends="jni_core">
+    <echo>Building libuid.so</echo> 
+    <exec dir="${SRC}/${GLUBJNI}/" executable="gcc" os="Linux">
+      <arg line="-fPIC -I/usr/lib/jvm/java-6-sun-1.6.0.14/include -I/usr/lib/jvm/java-6-sun-1.6.0.14/include/linux unix_uid.c -shared -o libuid.so"/>
+    </exec>
+    <move file="${SRC}/${GLUBJNI}/libuid.so" todir="native_lib/x86_64-linux/"/>
+  </target>
+
+  <target name="jni_sol_x86" depends="jni_core">
+    <echo>Building libuid.so</echo> 
+    <exec dir="${SRC}/${GLUBJNI}/" executable="gcc" os="SunOS">
+      <arg line="-c -I/usr/java/include -I/usr/java/include/solaris unix_uid.c -static -shared -o libuid.so"/>
+    </exec>
+    <move file="${SRC}/${GLUBJNI}/libuid.so" todir="native_lib/x86-solaris/"/>
+  </target>
+
+  <target name="jni_sol_sparc" depends="jni_core">
+    <echo>Building libuid.so</echo> 
+    <exec dir="${SRC}/${GLUBJNI}/" executable="gcc" os="SunOS">
+      <arg line="-c -I/usr/java/include -I/usr/java/include/solaris unix_uid.c -static -shared -o libuid.so"/>
+    </exec>
+    <move file="${SRC}/${GLUBJNI}/libuid.so" todir="native_lib/sparc-solaris/"/>
+  </target>
+
+  <target name="jni_macosx" depends="jni_core">
+    <echo>Building libuid.jnilib</echo> 
+    <exec dir="${SRC}/${GLUBJNI}/" executable="cc" os="MacOS">
+      <arg line="-bundle -I/System/Library/Frameworks/JavaVM.framework/Headers -o libuid.jnilib -arch i386 -arch x86_64 -framework JavaVM unix_uid.c"/>
+    </exec>
+    <move file="${SRC}/${GLUBJNI}/libuid.jnilib" 
+          todir="native_lib/x86-macosx/"/>
+  </target>
+
+</project>

@@ -1,0 +1,1 @@
+java -classpath ftpswrap3.jar;lib/jaxen-full.jar;lib/jdom.jar;lib/saxpath.jar com.glub.secureftp.wrapper.config.Setup

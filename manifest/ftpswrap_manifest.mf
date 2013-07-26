@@ -1,0 +1,3 @@
+Main-Class: com.glub.secureftp.wrapper.SecureFTPWrapper
+Class-Path: lib/jdom.jar lib/saxpath.jar lib/jaxen-full.jar
+Created-By: Glub Tech, Inc.
