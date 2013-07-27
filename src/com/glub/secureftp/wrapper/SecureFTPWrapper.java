@@ -19,9 +19,9 @@ import java.util.logging.*;
 public class SecureFTPWrapper {
   public static final String PROGRAM_NAME = "Glub Tech Secure FTP Wrapper";
   public static final String UPDATE_ID = "ftpswrap_3";
-  public static final String VERSION = "3.0.8";
+  public static final String VERSION = "3.0.9";
   public static final int MAJOR_VERSION = 3;
-  public static final String COPYRIGHT = "Copyright (c) 1999-2010 " +
+  public static final String COPYRIGHT = "Copyright (c) 1999-2013 " +
                                    "Glub Tech, Inc.";
 
   private static boolean running = true;
